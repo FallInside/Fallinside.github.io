@@ -1,1 +1,40 @@
-
+<!-- transform.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TIFF to RGB Transform</title>
+</head>
+<body>
+    <h1>Upload TIFF and Display</h1>
+    <input type="file" id="tiffInput" accept=".tiff, .tif, .jpg, .png">
+    <button onclick="uploadTiff()">Upload and Convert</button>
+    <br>
+    <img id="outputImage" src="" alt="Converted RGB Image" style="max-width: 100%;">
+    
+    <script>
+        function uploadTiff() {
+            var input = document.getElementById('tiffInput');
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var arrayBuffer = e.target.result;
+                    fetch('/convert', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/octet-stream'
+                        },
+                        body: arrayBuffer,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('outputImage').src = data.url;
+                    })
+                    .catch(error => console.error('Error:', error));
+                };
+                reader.readAsArrayBuffer(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
